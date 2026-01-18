@@ -34,16 +34,26 @@ def update_status(id):
     car = Car.query.get_or_404(id)
     new_status = request.form.get('status')
     if new_status in ['Pending', 'In Progress', 'Ready']:
-        car.status = new_status
-        db.session.commit()
-        flash(f'Status updated for {car.plate_number}', 'success')
+        try:
+            car.status = new_status
+            db.session.commit()
+            flash(f'Status updated for {car.plate_number}', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating status: {str(e)}', 'danger')
+    else:
+        flash('Invalid status value provided.', 'warning')
     return redirect(url_for('index'))
 
 @app.route('/delete/<int:id>', methods=['POST'])
 def delete_car(id):
     car = Car.query.get_or_404(id)
-    db.session.delete(car)
-    db.session.commit()
-    flash('Car removed from system', 'info')
+    try:
+        db.session.delete(car)
+        db.session.commit()
+        flash('Car removed from system', 'info')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting car: {str(e)}', 'danger')
     return redirect(url_for('index'))
 
