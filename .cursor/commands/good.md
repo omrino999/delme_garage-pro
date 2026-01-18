@@ -1,1 +1,0 @@
-is this how a good modern well built app would solve this?
